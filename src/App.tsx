@@ -85,16 +85,16 @@ export default function App() {
         </header>
 
         {/* Section 1: Corporate profile */}
-        <section className="bg-white px-6 py-12 border-b border-ink/10 space-y-8 flex-shrink-0">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 border border-ink/40 text-ink/75 text-[10px] font-mono uppercase tracking-widest rounded-full">
+        <section className="bg-white px-6 py-12 border-b border-ink/10 space-y-8 flex-shrink-0 text-center">
+          <div className="space-y-3">
+            <div className="inline-flex items-center justify-center gap-1.5 px-2.5 py-0.5 border border-ink/40 text-ink/75 text-[10px] font-mono uppercase tracking-widest rounded-full">
               <Sparkles className="w-3 h-3 text-ink animate-pulse" />
               PART I — CORPORATE PROFILE
             </div>
-            <h1 className="font-serif text-3xl font-bold tracking-tight text-ink leading-tight">
+            <h1 className="font-serif text-[2.27rem] font-bold tracking-tight text-ink leading-tight">
               Follow up with your inbound leads immediately.
             </h1>
-            <div className="w-12 h-[1.5px] bg-ink" />
+            <div className="w-12 h-[1.5px] bg-ink mx-auto" />
           </div>
           <div className="space-y-4 font-serif text-sm leading-relaxed text-ink-muted italic">
             <p>
@@ -107,16 +107,16 @@ export default function App() {
         </section>
 
         {/* Section 2: Product mechanics */}
-        <section className="bg-white px-6 py-12 border-b border-ink/10 space-y-8 flex-shrink-0">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 border border-ink/40 text-ink/75 text-[10px] font-mono uppercase tracking-widest rounded-full">
-              <Bot className="w-3.5 h-3.5 text-ink" />
-              AUTONOMOUS DISPATCH MECHANICS
-            </div>
-            <h2 className="font-serif text-2xl font-bold tracking-tight text-ink leading-tight">
+        <section className="bg-white px-6 py-12 border-b border-ink/10 space-y-8 flex-shrink-0 text-center">
+          <div className="space-y-3">
+            <h2 className="font-serif text-[2.27rem] font-bold tracking-tight text-ink leading-tight">
               How Our Lead Agents Convert Traffic
             </h2>
-            <div className="w-12 h-[1.5px] bg-ink" />
+            <h3 className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink/50 font-bold flex items-center justify-center gap-1.5">
+              <Bot className="w-3 h-3" />
+              Autonomous Dispatch Mechanics
+            </h3>
+            <div className="w-12 h-[1.5px] bg-ink mx-auto" />
           </div>
           <div className="space-y-5 pt-4 text-xs font-mono uppercase tracking-wide text-ink">
             {[

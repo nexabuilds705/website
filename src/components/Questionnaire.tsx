@@ -178,7 +178,7 @@ export default function Questionnaire({ onBookingSuccess, onReset }: Questionnai
             <CalendarDays className="w-3 h-3 text-ink" />
             PART III — SECURE A CALL
           </div>
-          <h2 className="font-serif text-2xl md:text-3xl font-bold tracking-tight text-ink mb-3">
+          <h2 className="font-serif text-[1.82rem] font-bold tracking-tight text-ink mb-3">
             Lock in a Live Demonstration
           </h2>
           <div className="w-12 h-[1px] bg-[#1A1A1A] mx-auto mb-3"></div>

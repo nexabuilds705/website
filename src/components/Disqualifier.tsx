@@ -74,7 +74,7 @@ export default function Disqualifier({ onScrollToQuestionnaire }: DisqualifierPr
           <Activity className="w-3 h-3 text-ink" />
           PART II — SERVICE EXCLUSIONS
         </div>
-        <h2 className="font-serif text-2xl md:text-3xl font-bold tracking-tight text-ink">
+        <h2 className="font-serif text-[1.82rem] font-bold tracking-tight text-ink">
           Who We Are Not For
         </h2>
         <div className="w-12 h-[1px] bg-ink mx-auto"></div>
