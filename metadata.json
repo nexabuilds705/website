@@ -1,0 +1,6 @@
+{
+  "name": "NexaBuilds Lead Agents",
+  "description": "A professional landing page and booking system for an AI-powered inbound lead handling agency.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
