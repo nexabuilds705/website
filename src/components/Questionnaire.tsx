@@ -10,15 +10,19 @@ interface QuestionnaireProps {
 }
 
 const COMMON_SERVICES = [
-  { id: 'hvac', label: 'HVAC & Plumbing', icon: '🔧' },
-  { id: 'electrical', label: 'Electrical Services', icon: '⚡' },
-  { id: 'realestate', label: 'Real Estate & Brokerage', icon: '🏠' },
-  { id: 'legal', label: 'Legal & Consulting', icon: '💼' },
-  { id: 'marketing', label: 'Digital Marketing / Agency', icon: '📈' },
-  { id: 'healthcare', label: 'Medical & Dental Clinic', icon: '🩺' },
-  { id: 'it', label: 'SaaS & IT Solutions', icon: '💻' },
-  { id: 'general', label: 'Other B2B / B2C Trades', icon: '⚙️' },
+  { id: 'pool', label: 'Pool Installation & Design', icon: '🏊' },
+  { id: 'homeservices', label: 'Home Services', icon: '🏠' },
+  { id: 'realestate', label: 'Real Estate & Brokerage', icon: '🏢' },
+  { id: 'other', label: 'Other Industry', icon: '⚙️' },
 ];
+
+const DUBAI_HOME_SERVICES = [
+  { id: 'home_ac', label: 'AC Maintenance & Repair', icon: '❄️' },
+  { id: 'home_cleaning', label: 'Deep Cleaning & Maid Services', icon: '🧹' },
+  { id: 'home_handyman', label: 'Plumbing & Handyman Work', icon: '🔧' },
+  { id: 'home_pest', label: 'Pest Control Services', icon: '🐜' },
+];
+
 
 const TIME_SLOTS = [
   '09:00 AM', '10:00 AM', '11:00 AM', '01:30 PM', '02:30 PM', '03:30 PM', '04:30 PM'
@@ -34,6 +38,9 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [subHomeService, setSubHomeService] = useState<string>('');
+  const [otherIndustry, setOtherIndustry] = useState<string>('');
   const [staffingProblem, setStaffingProblem] = useState<boolean | null>(null);
   const [inboundVolume, setInboundVolume] = useState<'low' | 'medium' | 'high' | 'critical'>('medium');
   const [notes, setNotes] = useState('');
@@ -103,8 +110,16 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
       }
       setStep(2);
     } else if (step === 2) {
-      if (selectedServices.length === 0) {
-        setFormError('Please select at least one service category you offer.');
+      if (!selectedCategory) {
+        setFormError('Please select a service category.');
+        return;
+      }
+      if (selectedCategory === 'homeservices' && !subHomeService) {
+        setFormError('Please select a specific home service.');
+        return;
+      }
+      if (selectedCategory === 'other' && !otherIndustry.trim()) {
+        setFormError('Please specify your industry.');
         return;
       }
       setStep(3);
@@ -133,12 +148,23 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
       return;
     }
 
+    let finalServices: string[] = [];
+    if (selectedCategory === 'homeservices') {
+      const subLabel = DUBAI_HOME_SERVICES.find(s => s.id === subHomeService)?.label || subHomeService;
+      finalServices = [`Home Services: ${subLabel}`];
+    } else if (selectedCategory === 'other') {
+      finalServices = [`Other: ${otherIndustry.trim()}`];
+    } else {
+      const mainLabel = COMMON_SERVICES.find(s => s.id === selectedCategory)?.label || selectedCategory;
+      finalServices = [mainLabel];
+    }
+
     const submission: LeadSubmission = {
       id: `lead_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
       name,
       email,
       phone,
-      services: selectedServices,
+      services: finalServices,
       preferredDate: selectedDateStr,
       preferredTime: selectedTimeSlot,
       staffingProblem: !!staffingProblem,
@@ -180,11 +206,11 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
             PART III — SECURE A CALL
           </div>
           <h2 className="font-serif text-[1.82rem] font-bold tracking-tight text-ink mb-3">
-            Lock in a Live Demonstration
+            Secure Your Call & Live Demo
           </h2>
           <div className="w-12 h-[1px] bg-[#1A1A1A] mx-auto mb-3"></div>
           <p className="font-serif text-xs md:text-sm text-ink-muted leading-relaxed italic">
-            Select a preferred day and time. We will configure a custom agent mock for your specific trade, then walk you through its core mechanics.
+            Select a preferred date and time to move forward. In the meantime, fill out the form and witness our service in action.
           </p>
         </div>
 
@@ -308,18 +334,21 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
                       <Building className="w-5 h-5 text-paper" />
                       2. Service Offerings & Scope
                     </h3>
-                    <p className="text-paper/60 text-sm font-serif italic mt-1">Select all categories that apply to your business operations.</p>
+                    <p className="text-paper/60 text-sm font-serif italic mt-1">Select the primary category that applies to your business operations.</p>
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {COMMON_SERVICES.map((srv) => {
-                      const selected = selectedServices.includes(srv.id);
+                      const selected = selectedCategory === srv.id;
                       return (
                         <button
                           key={srv.id}
                           type="button"
                           id={`service-toggle-${srv.id}`}
-                          onClick={() => handleServiceToggle(srv.id)}
+                          onClick={() => {
+                            setSelectedCategory(srv.id);
+                            setFormError('');
+                          }}
                           className={`p-4 border text-left transition-all rounded-xl flex flex-col justify-between h-28 ${
                             selected
                               ? 'bg-white border-white text-ink font-bold shadow-md'
@@ -339,6 +368,67 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
                       );
                     })}
                   </div>
+
+                  {/* Sub Home Services (if Home Services is selected) */}
+                  {selectedCategory === 'homeservices' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-5 border border-white/10 bg-neutral-900/60 rounded-xl space-y-4"
+                    >
+                      <label className="block text-xs font-mono uppercase tracking-widest text-paper font-bold">
+                        [ SELECT POPULAR DUBAI HOME SERVICE ]
+                      </label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {DUBAI_HOME_SERVICES.map((sub) => {
+                          const isSel = subHomeService === sub.id;
+                          return (
+                            <button
+                              key={sub.id}
+                              type="button"
+                              id={`sub-home-${sub.id}`}
+                              onClick={() => {
+                                setSubHomeService(sub.id);
+                                setFormError('');
+                              }}
+                              className={`p-3 border text-left transition-all rounded-xl flex items-center gap-3 ${
+                                isSel
+                                  ? 'bg-white border-white text-ink font-bold shadow-md'
+                                  : 'bg-neutral-900 border-white/10 hover:border-white/30 text-paper'
+                              }`}
+                            >
+                              <span className="text-xl">{sub.icon}</span>
+                              <span className="text-xs font-mono uppercase tracking-tight block leading-tight font-bold">{sub.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Other Industry Input (if Other is selected) */}
+                  {selectedCategory === 'other' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-5 border border-white/10 bg-neutral-900/60 rounded-xl space-y-3"
+                    >
+                      <label className="block text-xs font-mono uppercase tracking-widest text-paper font-bold" htmlFor="input-other-industry">
+                        [ SPECIFY YOUR INDUSTRY ]
+                      </label>
+                      <input
+                        type="text"
+                        id="input-other-industry"
+                        placeholder="e.g. Landscaping, E-commerce, Logistics"
+                        value={otherIndustry}
+                        onChange={(e) => {
+                          setOtherIndustry(e.target.value);
+                          setFormError('');
+                        }}
+                        className="w-full px-4 py-3 bg-neutral-900 border border-white/20 text-paper placeholder:text-neutral-500 focus:outline-none focus:ring-1 focus:ring-white focus:bg-neutral-800 text-sm font-sans rounded-xl transition-colors"
+                      />
+                    </motion.div>
+                  )}
 
                   <div>
                     <label className="block text-xs font-mono uppercase tracking-widest text-paper font-bold mb-3">
@@ -709,6 +799,9 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
                         setEmail('');
                         setPhone('');
                         setSelectedServices([]);
+                        setSelectedCategory('');
+                        setSubHomeService('');
+                        setOtherIndustry('');
                         setStaffingProblem(null);
                         setSelectedDateStr('');
                         setSelectedTimeSlot('');
