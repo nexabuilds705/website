@@ -202,7 +202,7 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
           </h2>
           <div className="w-12 h-[1px] bg-[#1A1A1A] mx-auto mb-3"></div>
           <p className="font-serif text-xs md:text-sm text-ink-muted leading-relaxed italic">
-            Select a preferred date and time to move forward. In the meantime, fill out the form and witness our service in action.
+            Fill out the form and witness our service in action.
           </p>
         </div>
 
@@ -473,7 +473,7 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
                       3. Special Instructions & Integrations
                     </h3>
                     <p className="text-paper/60 text-sm font-serif italic mt-1 leading-relaxed">
-                      Providing details regarding your current lead scoring workflow or CRM platforms will allow our engineering team to pre-configure integration hooks prior to our call, ensuring a highly productive demonstration.
+                      Providing details regarding your current lead scoring workflow or CRM platforms will allow our engineering team to pre-configure integration hooks prior to our call, ensuring a highly productive meeting.
                     </p>
                   </div>
 
