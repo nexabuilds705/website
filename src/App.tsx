@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bot, Sparkles, ArrowUpRight, Check, ChevronRight, X } from 'lucide-react';
+import { Bot, Sparkles, ArrowUpRight, Check, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Disqualifier from './components/Disqualifier';
 import Questionnaire from './components/Questionnaire';
@@ -12,40 +12,13 @@ export default function App() {
   const [showFloatingBox, setShowFloatingBox] = useState(true);
   const [isBooked, setIsBooked] = useState(false);
 
-  // One-time cinematic Apple-style scroll transition state
-  const [hasCompletedFirstScroll, setHasCompletedFirstScroll] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // Monitor scroll/gestures to trigger the cinematic transition once
+  // Hide the floating CTA once the booking form scrolls into view
   useEffect(() => {
     const container = scrollContainerRef.current;
 
-    const triggerTransition = () => {
-      if (!hasCompletedFirstScroll && !isTransitioning) {
-        setIsTransitioning(true);
-        setTimeout(() => {
-          setHasCompletedFirstScroll(true);
-          setIsTransitioning(false);
-        }, 1400);
-      }
-    };
-
     const handleScroll = () => {
-      const scrollTop = container ? container.scrollTop : window.scrollY;
-
-      if (!hasCompletedFirstScroll) {
-        if (scrollTop > 5) {
-          // Lock scroll at top during the cinematic rise
-          if (container) container.scrollTop = 0;
-          else window.scrollTo(0, 0);
-          triggerTransition();
-        }
-        return;
-      }
-
-      // Hide floating CTA once the booking form comes into view
       const bookingSection = document.getElementById('book-demo');
       if (!bookingSection) return;
 
@@ -62,12 +35,8 @@ export default function App() {
 
     if (container) {
       container.addEventListener('scroll', handleScroll);
-      container.addEventListener('wheel', triggerTransition, { passive: true });
-      container.addEventListener('touchmove', triggerTransition, { passive: true });
     } else {
       window.addEventListener('scroll', handleScroll);
-      window.addEventListener('wheel', triggerTransition, { passive: true });
-      window.addEventListener('touchmove', triggerTransition, { passive: true });
     }
 
     handleScroll();
@@ -75,15 +44,11 @@ export default function App() {
     return () => {
       if (container) {
         container.removeEventListener('scroll', handleScroll);
-        container.removeEventListener('wheel', triggerTransition);
-        container.removeEventListener('touchmove', triggerTransition);
       } else {
         window.removeEventListener('scroll', handleScroll);
-        window.removeEventListener('wheel', triggerTransition);
-        window.removeEventListener('touchmove', triggerTransition);
       }
     };
-  }, [hasCompletedFirstScroll, isTransitioning]);
+  }, []);
 
   const handleBookingSuccess = (_submission: LeadSubmission) => {
     setSubmissionsUpdatedToggle(prev => !prev);
@@ -91,18 +56,14 @@ export default function App() {
   };
 
   const scrollToBooking = () => {
-    if (!hasCompletedFirstScroll) setHasCompletedFirstScroll(true);
+    const el = document.getElementById('book-demo');
+    const container = scrollContainerRef.current;
 
-    setTimeout(() => {
-      const el = document.getElementById('book-demo');
-      const container = scrollContainerRef.current;
-
-      if (container && window.innerWidth >= 768) {
-        container.scrollTo({ top: el?.offsetTop ?? 0, behavior: 'smooth' });
-      } else {
-        el?.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 50);
+    if (container && window.innerWidth >= 768) {
+      container.scrollTo({ top: el?.offsetTop ?? 0, behavior: 'smooth' });
+    } else {
+      el?.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
@@ -123,208 +84,86 @@ export default function App() {
           </div>
         </header>
 
-        {!hasCompletedFirstScroll ? (
-          /* Cinematic intro — shown only once on first scroll */
-          <div className="relative w-full h-full overflow-hidden flex flex-col justify-between">
-
-            {/* Screen 1: Corporate profile (fades out) */}
-            <motion.section
-              initial={{ opacity: 1, scale: 1, y: 0 }}
-              animate={isTransitioning ? { opacity: 0, scale: 0.95, y: -40 } : { opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
-              className="flex-1 bg-white px-6 py-12 flex flex-col justify-center space-y-8 select-none"
-            >
-              <div className="space-y-2">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 border border-ink/40 text-ink/75 text-[10px] font-mono uppercase tracking-widest rounded-full">
-                  <Sparkles className="w-3 h-3 text-ink animate-pulse" />
-                  PART I — CORPORATE PROFILE
-                </div>
-                <h1 className="font-serif text-3xl md:text-4xl font-bold tracking-tight text-ink leading-tight">
-                  Follow up with your inbound leads immediately.
-                </h1>
-                <div className="w-12 h-[1.5px] bg-ink" />
-              </div>
-
-              <div className="space-y-4 font-serif text-sm leading-relaxed text-ink-muted italic">
-                <p>
-                  NexaBuilds is an autonomous engineering agency. We build and deploy digital lead agents that handle inbound traffic, qualify customer intent, and lock calendar bookings in under 90 seconds.
-                </p>
-                <p>
-                  By replacing traditional call-backs and email delay loops with immediate conversational action, we halt client leakage for mechanical trades, law practices, and high-ticket service operations.
-                </p>
-              </div>
-
-              <div className="pt-4 flex flex-col items-center justify-center text-center space-y-2 text-[10px] font-mono uppercase tracking-widest text-ink/40">
-                <span className="animate-bounce">↓</span>
-                <span>Scroll or Swipe up to explore</span>
-              </div>
-            </motion.section>
-
-            {/* Screen 2: Product mechanics (rises in) */}
-            <motion.section
-              initial={{ y: '100%', opacity: 0 }}
-              animate={isTransitioning ? { y: 0, opacity: 1 } : { y: '100%', opacity: 0 }}
-              transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute inset-0 bg-white px-6 py-12 flex flex-col justify-center space-y-8 z-20 overflow-y-auto"
-            >
-              <div className="space-y-2">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 border border-ink/40 text-ink/75 text-[10px] font-mono uppercase tracking-widest rounded-full">
-                  <Bot className="w-3.5 h-3.5 text-ink" />
-                  AUTONOMOUS DISPATCH MECHANICS
-                </div>
-                <h2 className="font-serif text-2xl md:text-3xl font-bold tracking-tight text-ink leading-tight">
-                  How Our Lead Agents Convert Traffic
-                </h2>
-                <div className="w-12 h-[1.5px] bg-ink" />
-              </div>
-
-              <div className="space-y-5 pt-4 text-xs font-mono uppercase tracking-wide text-ink">
-                {[
-                  { title: '90-Second Lead Capture', desc: 'Inbounds are instantly engaged via automated voice or text message parameters.' },
-                  { title: 'Real-time Intent Screening', desc: 'Our system verifies budgets and schedules before submitting slots to your CRM.' },
-                  { title: 'Guaranteed Pipeline Safety', desc: 'Eliminates the cost of missed weekend leads and late-night inquiries entirely.' },
-                ].map(({ title, desc }) => (
-                  <div key={title} className="flex gap-4 items-start p-3 border border-ink/10 rounded-2xl bg-neutral-50/50">
-                    <div className="p-2 border border-ink bg-[#F4F1EA] flex-shrink-0 rounded-lg">
-                      <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                    </div>
-                    <div className="space-y-0.5">
-                      <span className="font-bold block">{title}</span>
-                      <p className="text-[10px] text-ink-muted font-normal lowercase font-serif italic tracking-normal">{desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="pt-2">
-                <button
-                  type="button"
-                  onClick={() => setHasCompletedFirstScroll(true)}
-                  className="w-full py-3 px-4 bg-ink hover:bg-neutral-800 text-paper font-mono text-[10px] uppercase tracking-widest font-bold border border-ink rounded-xl transition-all flex items-center justify-between"
-                >
-                  <span>PROCEED TO COMPATIBILITY</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            </motion.section>
-
+        {/* Section 1: Corporate profile */}
+        <section className="bg-white px-6 py-12 border-b border-ink/10 space-y-8 flex-shrink-0">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 border border-ink/40 text-ink/75 text-[10px] font-mono uppercase tracking-widest rounded-full">
+              <Sparkles className="w-3 h-3 text-ink animate-pulse" />
+              PART I — CORPORATE PROFILE
+            </div>
+            <h1 className="font-serif text-3xl font-bold tracking-tight text-ink leading-tight">
+              Follow up with your inbound leads immediately.
+            </h1>
+            <div className="w-12 h-[1.5px] bg-ink" />
           </div>
-        ) : (
-          /* Normal document flow after the intro transition */
-          <div className="flex flex-col">
-
-            {/* Section 1: Corporate profile */}
-            <motion.section
-              initial={{ opacity: 0, y: 60 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ root: scrollContainerRef, once: true, amount: 0.1 }}
-              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-              className="bg-white px-6 py-12 border-b border-ink/10 space-y-8 flex-shrink-0"
-            >
-              <div className="space-y-2">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 border border-ink/40 text-ink/75 text-[10px] font-mono uppercase tracking-widest rounded-full">
-                  <Sparkles className="w-3 h-3 text-ink" />
-                  PART I — CORPORATE PROFILE
-                </div>
-                <h1 className="font-serif text-3xl md:text-4xl font-bold tracking-tight text-ink leading-tight">
-                  Follow up with your inbound leads immediately.
-                </h1>
-                <div className="w-12 h-[1.5px] bg-ink" />
-              </div>
-              <div className="space-y-4 font-serif text-sm leading-relaxed text-ink-muted italic">
-                <p>
-                  NexaBuilds is an autonomous engineering agency. We build and deploy digital lead agents that handle inbound traffic, qualify customer intent, and lock calendar bookings in under 90 seconds.
-                </p>
-              </div>
-            </motion.section>
-
-            {/* Section 2: Product mechanics */}
-            <motion.section
-              initial={{ opacity: 0, y: 60 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ root: scrollContainerRef, once: true, amount: 0.1 }}
-              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-              className="bg-white px-6 py-12 border-b border-ink/10 space-y-8 flex-shrink-0"
-            >
-              <div className="space-y-2">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 border border-ink/40 text-ink/75 text-[10px] font-mono uppercase tracking-widest rounded-full">
-                  <Bot className="w-3.5 h-3.5 text-ink" />
-                  AUTONOMOUS DISPATCH MECHANICS
-                </div>
-                <h2 className="font-serif text-2xl md:text-3xl font-bold tracking-tight text-ink leading-tight">
-                  How Our Lead Agents Convert Traffic
-                </h2>
-                <div className="w-12 h-[1.5px] bg-ink" />
-              </div>
-              <div className="space-y-5 pt-4 text-xs font-mono uppercase tracking-wide text-ink">
-                {[
-                  { title: '90-Second Lead Capture', desc: 'Inbounds are instantly engaged via automated voice or text message parameters.' },
-                  { title: 'Real-time Intent Screening', desc: 'Our system verifies budgets and schedules before submitting slots to your CRM.' },
-                  { title: 'Guaranteed Pipeline Safety', desc: 'Eliminates the cost of missed weekend leads and late-night inquiries entirely.' },
-                ].map(({ title, desc }) => (
-                  <div key={title} className="flex gap-4 items-start p-3 border border-ink/10 rounded-2xl bg-neutral-50/50">
-                    <div className="p-2 border border-ink bg-[#F4F1EA] flex-shrink-0 rounded-lg">
-                      <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                    </div>
-                    <div className="space-y-0.5">
-                      <span className="font-bold block">{title}</span>
-                      <p className="text-[10px] text-ink-muted font-normal lowercase font-serif italic tracking-normal">{desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </motion.section>
-
-            {/* Section 3: Disqualifier */}
-            <motion.div
-              initial={{ opacity: 0, y: 60 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ root: scrollContainerRef, once: true, amount: 0.05 }}
-              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <Disqualifier onScrollToQuestionnaire={scrollToBooking} />
-            </motion.div>
-
-            {/* Section 4: Booking questionnaire */}
-            <motion.div
-              initial={{ opacity: 0, y: 60 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ root: scrollContainerRef, once: true, amount: 0.05 }}
-              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <Questionnaire
-                onBookingSuccess={handleBookingSuccess}
-                onReset={() => setIsBooked(false)}
-              />
-            </motion.div>
-
-            {/* Footer */}
-            <motion.footer
-              initial={{ opacity: 0, y: 60 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ root: scrollContainerRef, once: true, amount: 0.1 }}
-              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-              className="bg-[#E8E5DC] border-t border-ink/20 py-10 px-6 text-center space-y-6 flex-shrink-0"
-            >
-              <div className="flex items-center justify-center gap-2">
-                <div className="w-5 h-5 border border-ink bg-white flex items-center justify-center text-ink rounded-md">
-                  <Bot className="w-3 h-3" />
-                </div>
-                <span className="font-serif font-bold text-xs uppercase text-ink">NexaBuilds Autonomous</span>
-              </div>
-              <p className="text-[11px] font-serif text-ink-muted italic leading-relaxed max-w-xs mx-auto">
-                Providing modern conversion engineering for high-intent business inquiries.
-              </p>
-              <div className="text-[9px] font-mono uppercase tracking-widest text-ink/40 space-y-2">
-                <span>© 2026 NEXABUILDS AGENCY INC.</span>
-                <div className="flex justify-center gap-2 pt-2 text-[8px] text-ink/50">
-                  <span>SLA GUARANTEED</span>
-                </div>
-              </div>
-            </motion.footer>
-
+          <div className="space-y-4 font-serif text-sm leading-relaxed text-ink-muted italic">
+            <p>
+              NexaBuilds is an autonomous engineering agency. We build and deploy digital lead agents that handle inbound traffic, qualify customer intent, and lock calendar bookings in under 90 seconds.
+            </p>
+            <p>
+              By replacing traditional call-backs and email delay loops with immediate conversational action, we halt client leakage for mechanical trades, law practices, and high-ticket service operations.
+            </p>
           </div>
-        )}
+        </section>
+
+        {/* Section 2: Product mechanics */}
+        <section className="bg-white px-6 py-12 border-b border-ink/10 space-y-8 flex-shrink-0">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 border border-ink/40 text-ink/75 text-[10px] font-mono uppercase tracking-widest rounded-full">
+              <Bot className="w-3.5 h-3.5 text-ink" />
+              AUTONOMOUS DISPATCH MECHANICS
+            </div>
+            <h2 className="font-serif text-2xl font-bold tracking-tight text-ink leading-tight">
+              How Our Lead Agents Convert Traffic
+            </h2>
+            <div className="w-12 h-[1.5px] bg-ink" />
+          </div>
+          <div className="space-y-5 pt-4 text-xs font-mono uppercase tracking-wide text-ink">
+            {[
+              { title: '90-Second Lead Capture', desc: 'Inbounds are instantly engaged via automated voice or text message parameters.' },
+              { title: 'Real-time Intent Screening', desc: 'Our system verifies budgets and schedules before submitting slots to your CRM.' },
+              { title: 'Guaranteed Pipeline Safety', desc: 'Eliminates the cost of missed weekend leads and late-night inquiries entirely.' },
+            ].map(({ title, desc }) => (
+              <div key={title} className="flex gap-4 items-start p-3 border border-ink/10 rounded-2xl bg-neutral-50/50">
+                <div className="p-2 border border-ink bg-[#F4F1EA] flex-shrink-0 rounded-lg">
+                  <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                </div>
+                <div className="space-y-0.5">
+                  <span className="font-bold block">{title}</span>
+                  <p className="text-[10px] text-ink-muted font-normal lowercase font-serif italic tracking-normal">{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Section 3: Disqualifier */}
+        <Disqualifier onScrollToQuestionnaire={scrollToBooking} />
+
+        {/* Section 4: Booking questionnaire */}
+        <Questionnaire
+          onBookingSuccess={handleBookingSuccess}
+          onReset={() => setIsBooked(false)}
+        />
+
+        {/* Footer */}
+        <footer className="bg-[#E8E5DC] border-t border-ink/20 py-10 px-6 text-center space-y-6 flex-shrink-0">
+          <div className="flex items-center justify-center gap-2">
+            <div className="w-5 h-5 border border-ink bg-white flex items-center justify-center text-ink rounded-md">
+              <Bot className="w-3 h-3" />
+            </div>
+            <span className="font-serif font-bold text-xs uppercase text-ink">NexaBuilds Autonomous</span>
+          </div>
+          <p className="text-[11px] font-serif text-ink-muted italic leading-relaxed max-w-xs mx-auto">
+            Providing modern conversion engineering for high-intent business inquiries.
+          </p>
+          <div className="text-[9px] font-mono uppercase tracking-widest text-ink/40 space-y-2">
+            <span>© 2026 NEXABUILDS AGENCY INC.</span>
+            <div className="flex justify-center gap-2 pt-2 text-[8px] text-ink/50">
+              <span>SLA GUARANTEED</span>
+            </div>
+          </div>
+        </footer>
 
         {/* Floating "Book a Call Now" CTA pill */}
         <AnimatePresence>
