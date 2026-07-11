@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, User, Check, Sparkles, Building, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Mail, User, Check, Sparkles, Building, ChevronLeft, ChevronRight, CalendarDays, AlertCircle, Phone } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { LeadSubmission } from '../types';
 
