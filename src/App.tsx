@@ -29,7 +29,8 @@ export default function App() {
         topOffset = bookingSection.getBoundingClientRect().top;
       }
 
-      const threshold = Math.min(250, window.innerHeight * 0.4);
+      const containerHeight = container ? container.clientHeight : window.innerHeight;
+      const threshold = containerHeight - 80; // pill top-edge contact point (pill height ~48px + bottom-8 ~32px)
       setShowFloatingBox(topOffset >= threshold);
     };
 
@@ -144,6 +145,7 @@ export default function App() {
         <Questionnaire
           onBookingSuccess={handleBookingSuccess}
           onReset={() => setIsBooked(false)}
+          isAnimationTarget={!showFloatingBox}
         />
 
         {/* Footer */}
@@ -169,10 +171,11 @@ export default function App() {
         <AnimatePresence>
           {showFloatingBox && !isBooked && (
             <motion.div
-              initial={{ opacity: 0, y: 50, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              transition={{ type: 'spring', stiffness: 120, damping: 20 }}
+              layoutId="booking-card"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 200, damping: 28 }}
               onClick={scrollToBooking}
               style={{ left: '50%', transform: 'translateX(-50%)' }}
               className="fixed md:absolute bottom-8 z-40 bg-ink text-paper px-6 py-3 rounded-full shadow-2xl flex items-center justify-center gap-2 cursor-pointer hover:bg-neutral-800 border border-ink min-w-[170px] text-center"

@@ -6,6 +6,7 @@ import { LeadSubmission } from '../types';
 interface QuestionnaireProps {
   onBookingSuccess: (newSubmission: LeadSubmission) => void;
   onReset?: () => void;
+  isAnimationTarget?: boolean;
 }
 
 const COMMON_SERVICES = [
@@ -23,7 +24,7 @@ const TIME_SLOTS = [
   '09:00 AM', '10:00 AM', '11:00 AM', '01:30 PM', '02:30 PM', '03:30 PM', '04:30 PM'
 ];
 
-export default function Questionnaire({ onBookingSuccess, onReset }: QuestionnaireProps) {
+export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTarget }: QuestionnaireProps) {
   // Wizard steps: 1 (Info), 2 (Services/Volume), 3 (Staffing pain), 4 (Calendar Book), 5 (Success)
   const [step, setStep] = useState<number>(1);
   const [formError, setFormError] = useState<string>('');
@@ -188,7 +189,11 @@ export default function Questionnaire({ onBookingSuccess, onReset }: Questionnai
         </div>
 
         {/* Wizard Container */}
-        <div className="rounded-2xl shadow-sm overflow-hidden min-h-[460px] flex flex-col relative border-2 border-[#1A1A1A] bg-[#1A1A1A] z-10">
+        <motion.div
+          layoutId={isAnimationTarget ? 'booking-card' : undefined}
+          transition={{ type: 'spring', stiffness: 200, damping: 28 }}
+          className="rounded-2xl shadow-sm overflow-hidden min-h-[460px] flex flex-col relative border-2 border-[#1A1A1A] bg-[#1A1A1A] z-10"
+        >
 
           {/* Progress indicator */}
           {step < 5 && (
@@ -743,7 +748,7 @@ export default function Questionnaire({ onBookingSuccess, onReset }: Questionnai
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
