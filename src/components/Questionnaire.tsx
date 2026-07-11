@@ -40,6 +40,7 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
   const [leadScoring, setLeadScoring] = useState('');
   const [inboundVolume, setInboundVolume] = useState<'low' | 'medium' | 'high' | 'critical'>('medium');
   const [notes, setNotes] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
 
 
@@ -85,8 +86,9 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
     setStep(prev => prev - 1);
   };
 
-  const handleFinalSubmit = (e?: React.FormEvent) => {
+  const handleFinalSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
+    setFormError('');
 
     let finalServices: string[] = [];
     if (selectedCategory === 'homeservices') {
@@ -99,35 +101,64 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
       finalServices = [mainLabel];
     }
 
-    const submission: LeadSubmission = {
-      id: `lead_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
-      name,
-      email,
-      phone,
-      services: finalServices,
-      preferredDate: "",
-      preferredTime: "",
-      staffingProblem: false,
-      inboundVolume,
-      notes,
-      crm: crm.trim() || undefined,
-      leadScoring: leadScoring.trim() || undefined,
-      bookedAt: new Date().toISOString()
-    };
+    setIsSubmitting(true);
 
-    // Save to LocalStorage
     try {
-      const existing = localStorage.getItem('lead_submissions');
-      const submissions = existing ? JSON.parse(existing) : [];
-      submissions.push(submission);
-      localStorage.setItem('lead_submissions', JSON.stringify(submissions));
-    } catch (e) {
-      console.error("Storage error:", e);
-    }
+      const payload = {
+        name,
+        email,
+        phone,
+        serviceNeeded: finalServices.join(", "),
+        problem: leadScoring.trim() || notes || "No specific requirements provided."
+      };
 
-    // Pass up
-    onBookingSuccess(submission);
-    setStep(4);
+      const response = await fetch("https://hermes-agent-8x2n.srv1811633.hstgr.cloud/webhook/lead", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to submit to Hermes webhook");
+      }
+
+      const submission: LeadSubmission = {
+        id: `lead_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+        name,
+        email,
+        phone,
+        services: finalServices,
+        preferredDate: "",
+        preferredTime: "",
+        staffingProblem: false,
+        inboundVolume,
+        notes,
+        crm: crm.trim() || undefined,
+        leadScoring: leadScoring.trim() || undefined,
+        bookedAt: new Date().toISOString()
+      };
+
+      // Save to LocalStorage
+      try {
+        const existing = localStorage.getItem('lead_submissions');
+        const submissions = existing ? JSON.parse(existing) : [];
+        submissions.push(submission);
+        localStorage.setItem('lead_submissions', JSON.stringify(submissions));
+      } catch (e) {
+        console.error("Storage error:", e);
+      }
+
+      // Pass up
+      onBookingSuccess(submission);
+      setStep(4);
+    } catch (err) {
+      console.error(err);
+      setFormError("We're having trouble submitting your request. Please try again in a moment.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -555,9 +586,10 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
                     type="button"
                     id="btn-submit-booking"
                     onClick={() => handleFinalSubmit()}
-                    className="inline-flex items-center gap-3 py-3.5 px-8 bg-white hover:bg-neutral-100 text-ink font-mono text-xs uppercase tracking-wider transition-all border border-white font-bold rounded-xl shadow-md cursor-pointer"
+                    disabled={isSubmitting}
+                    className="inline-flex items-center gap-3 py-3.5 px-8 bg-white hover:bg-neutral-100 text-ink font-mono text-xs uppercase tracking-wider transition-all border border-white font-bold rounded-xl shadow-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    SECURE RESERVATION
+                    {isSubmitting ? "SECURING..." : "SECURE RESERVATION"}
                   </button>
                 ) : (
                   <button
