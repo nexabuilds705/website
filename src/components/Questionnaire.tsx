@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar as CalendarIcon, Clock, Mail, Phone, User, Check, AlertCircle, Sparkles, Building, PhoneCall, ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react';
+import { Mail, User, Check, Sparkles, Building, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { LeadSubmission } from '../types';
 
@@ -24,12 +24,8 @@ const DUBAI_HOME_SERVICES = [
 ];
 
 
-const TIME_SLOTS = [
-  '09:00 AM', '10:00 AM', '11:00 AM', '01:30 PM', '02:30 PM', '03:30 PM', '04:30 PM'
-];
-
 export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTarget }: QuestionnaireProps) {
-  // Wizard steps: 1 (Info), 2 (Services/Volume), 3 (Staffing pain), 4 (Calendar Book), 5 (Success)
+  // Wizard steps: 1 (Info), 2 (Services/Volume), 3 (Special Instructions), 4 (Success)
   const [step, setStep] = useState<number>(1);
   const [formError, setFormError] = useState<string>('');
 
@@ -45,45 +41,7 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
   const [inboundVolume, setInboundVolume] = useState<'low' | 'medium' | 'high' | 'critical'>('medium');
   const [notes, setNotes] = useState('');
 
-  // Calendar state — months are 0-indexed (6 = July, 7 = August)
-  const [activeMonth, setActiveMonth] = useState(6);
-  const [selectedDateStr, setSelectedDateStr] = useState('');
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState('');
 
-  // Generate calendar day objects for July (month=6) or August (month=7) 2026
-  const getCalendarDays = (month: number) => {
-    const daysInMonth = 31; // both July and August have 31 days
-    const startDayOfWeek = month === 6 ? 3 : 6; // Jul 1 = Wednesday, Aug 1 = Saturday
-    const days = [];
-
-    // Empty spaces for padding
-    for (let i = 0; i < startDayOfWeek; i++) {
-      days.push({ dayNum: 0, isWeekend: false, dateStr: '' });
-    }
-
-    // Days list
-    for (let d = 1; d <= daysInMonth; d++) {
-      const dayOfWeek = (startDayOfWeek + d - 1) % 7;
-      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-      const formattedMonth = String(month + 1).padStart(2, '0');
-      const formattedDay = String(d).padStart(2, '0');
-      const dateStr = `2026-${formattedMonth}-${formattedDay}`;
-
-      // In July 2026, the current date is July 11th. So disable dates before 11th.
-      const isPast = month === 6 && d < 11;
-
-      days.push({
-        dayNum: d,
-        isWeekend,
-        isPast,
-        dateStr,
-      });
-    }
-
-    return days;
-  };
-
-  const calendarDays = getCalendarDays(activeMonth);
 
 
 
@@ -127,16 +85,8 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
     setStep(prev => prev - 1);
   };
 
-  const handleFinalSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedDateStr) {
-      setFormError('Please pick a date on the calendar.');
-      return;
-    }
-    if (!selectedTimeSlot) {
-      setFormError('Please select a preferred meeting slot.');
-      return;
-    }
+  const handleFinalSubmit = (e?: React.FormEvent) => {
+    e?.preventDefault();
 
     let finalServices: string[] = [];
     if (selectedCategory === 'homeservices') {
@@ -155,8 +105,8 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
       email,
       phone,
       services: finalServices,
-      preferredDate: selectedDateStr,
-      preferredTime: selectedTimeSlot,
+      preferredDate: "",
+      preferredTime: "",
       staffingProblem: false,
       inboundVolume,
       notes,
@@ -177,14 +127,7 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
 
     // Pass up
     onBookingSuccess(submission);
-    setStep(5);
-  };
-
-  const formatDateLabel = (dateStr: string) => {
-    if (!dateStr) return '';
-    const [, m, d] = dateStr.split('-');
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return `${months[parseInt(m) - 1]} ${parseInt(d)}, 2026`;
+    setStep(4);
   };
 
   return (
@@ -509,186 +452,12 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
                 </motion.div>
               )}
 
-              {/* STEP 4: Beautiful Interactive Calendar Booking */}
+
+
+              {/* STEP 4: Success Screen */}
               {step === 4 && (
-                <form onSubmit={handleFinalSubmit} className="space-y-6">
-                  <div>
-                    <h3 className="font-serif text-2xl font-bold text-paper flex items-center gap-3">
-                      <CalendarIcon className="w-5 h-5 text-paper" />
-                      4. Dispatch Scheduling
-                    </h3>
-                    <p className="text-paper/60 text-sm font-serif italic mt-1">Select a business day in July or August 2026. (Closed weekends).</p>
-                  </div>
-
-                  <div className="grid md:grid-cols-12 gap-8">
-                    {/* Calendar Grid (8 cols) */}
-                    <div className="md:col-span-7 bg-neutral-900/60 p-5 border border-white/10 rounded-2xl">
-                      {/* Month Toggle Header */}
-                      <div className="flex items-center justify-between mb-6 border-b border-white/10 pb-3">
-                        <span className="font-mono text-xs uppercase tracking-wider font-bold text-paper">
-                          {activeMonth === 6 ? 'July 2026' : 'August 2026'}
-                        </span>
-                        <div className="flex gap-1">
-                          <button
-                            type="button"
-                            id="btn-month-prev"
-                            disabled={activeMonth === 6}
-                            onClick={() => setActiveMonth(6)}
-                            className="p-1.5 bg-neutral-800 border border-white/10 text-paper hover:bg-neutral-700 disabled:opacity-30 disabled:cursor-not-allowed rounded-lg transition-colors"
-                          >
-                            <ChevronLeft className="w-4 h-4" />
-                          </button>
-                          <button
-                            type="button"
-                            id="btn-month-next"
-                            disabled={activeMonth === 7}
-                            onClick={() => setActiveMonth(7)}
-                            className="p-1.5 bg-neutral-800 border border-white/10 text-paper hover:bg-neutral-700 disabled:opacity-30 disabled:cursor-not-allowed rounded-lg transition-colors"
-                          >
-                            <ChevronRight className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Day of Week Headers */}
-                      <div className="grid grid-cols-7 text-center gap-1 mb-3">
-                        {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((d) => (
-                          <span key={d} className="text-[10px] font-mono uppercase tracking-widest text-paper/50 font-bold py-1">
-                            {d}
-                          </span>
-                        ))}
-                      </div>
-
-                      {/* Calendar Days */}
-                      <div className="grid grid-cols-7 gap-1">
-                        {calendarDays.map((day, idx) => {
-                          if (day.dayNum === 0) {
-                            return <div key={`empty-${idx}`} />;
-                          }
-
-                          const isSelected = selectedDateStr === day.dateStr;
-                          const selectable = !day.isWeekend && !day.isPast;
-
-                          return (
-                            <button
-                              key={`day-${day.dateStr}`}
-                              type="button"
-                              id={`calendar-day-${day.dateStr}`}
-                              disabled={!selectable}
-                              onClick={() => {
-                                setSelectedDateStr(day.dateStr);
-                                setFormError('');
-                              }}
-                              className={`py-2 text-xs font-mono font-bold transition-all border rounded-lg ${
-                                isSelected
-                                  ? 'bg-white border-white text-ink shadow-md'
-                                  : selectable
-                                  ? 'bg-neutral-800 text-paper border-white/10 hover:border-white/30 hover:bg-neutral-700 cursor-pointer'
-                                  : 'text-neutral-600 bg-neutral-900/20 border-transparent cursor-not-allowed'
-                              }`}
-                            >
-                              <span>{day.dayNum}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Time slots and summary (5 cols) */}
-                    <div className="md:col-span-5 flex flex-col justify-between space-y-6">
-                      <div>
-                        <span className="block text-xs font-mono uppercase tracking-widest text-paper font-bold mb-3">
-                          [ SLOTS: {selectedDateStr ? formatDateLabel(selectedDateStr).toUpperCase() : 'SELECT DATE'} ]
-                        </span>
-                        
-                        {!selectedDateStr ? (
-                          <div className="p-8 text-center border border-dashed border-white/10 bg-neutral-950/40 flex flex-col items-center justify-center min-h-[160px] rounded-xl">
-                            <Clock className="w-5 h-5 text-paper/40 mb-2.5" />
-                            <span className="text-xs font-serif italic text-paper/50">Select an active weekday to view available booking hours.</span>
-                          </div>
-                        ) : (
-                          <div className="grid grid-cols-2 gap-2">
-                            {TIME_SLOTS.map((slot) => {
-                              const isSelected = selectedTimeSlot === slot;
-                              return (
-                                <button
-                                  key={slot}
-                                  type="button"
-                                  id={`time-slot-${slot.replace(':', '-').replace(' ', '-')}`}
-                                  onClick={() => setSelectedTimeSlot(slot)}
-                                  className={`py-2.5 px-3 text-xs font-mono uppercase tracking-wider border transition-all rounded-xl ${
-                                    isSelected
-                                      ? 'bg-white border-white text-ink font-bold shadow-md'
-                                      : 'bg-neutral-800 border-white/10 hover:border-white/30 text-paper'
-                                  }`}
-                                >
-                                  {slot}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Brief Notes */}
-                      <div>
-                        <label className="block text-xs font-mono uppercase tracking-wider text-paper font-bold mb-2.5" htmlFor="input-notes">
-                          Special Instructions or Context (Optional)
-                        </label>
-                        <textarea
-                          id="input-notes"
-                          rows={2}
-                          value={notes}
-                          onChange={(e) => setNotes(e.target.value)}
-                          placeholder="e.g., We use ServiceTitan CRM, call cell..."
-                          className="w-full text-xs p-3.5 bg-neutral-900 border border-white/20 text-paper placeholder:text-neutral-500 focus:outline-none focus:ring-1 focus:ring-white focus:bg-neutral-800 font-sans rounded-xl transition-colors"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Booking Recap */}
-                  {selectedDateStr && selectedTimeSlot && (
-                    <div className="bg-neutral-950 border border-white/15 p-4 flex items-center justify-between text-paper mt-6 rounded-xl">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-white text-ink rounded-lg">
-                          <Check className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <span className="text-[10px] font-mono uppercase tracking-widest text-paper/60 font-bold block">CONFIRMED DISPATCH SLOT</span>
-                          <span className="text-sm font-serif font-bold">
-                            {formatDateLabel(selectedDateStr)} @ {selectedTimeSlot} (Eastern Standard Time)
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Submission Buttons */}
-                  <div className="flex items-center justify-between border-t border-white/10 pt-6 mt-8">
-                    <button
-                      type="button"
-                      id="btn-back-step4"
-                      onClick={handlePrevStep}
-                      className="inline-flex items-center gap-2 py-3 px-5 border border-transparent hover:bg-neutral-800 text-paper/70 font-mono text-xs uppercase tracking-wider transition-all"
-                    >
-                      <ChevronLeft className="w-4 h-4" /> Back
-                    </button>
-                    <button
-                      type="submit"
-                      id="btn-submit-booking"
-                      className="inline-flex items-center gap-3 py-4 px-8 bg-white hover:bg-neutral-100 text-ink font-mono text-xs uppercase tracking-wider transition-all border border-white font-bold rounded-xl shadow-md"
-                    >
-                      SECURE RESERVATION
-                    </button>
-                  </div>
-                </form>
-              )}
-
-              {/* STEP 5: Success Screen */}
-              {step === 5 && (
                 <motion.div
-                  key="step5"
+                  key="step4"
                   initial={{ opacity: 0, scale: 0.98 }}
                   animate={{ opacity: 1, scale: 1 }}
                   className="text-center py-6 space-y-8 max-w-lg mx-auto"
@@ -706,21 +475,17 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
                     </p>
                   </div>
 
-                  {/* Calendar Event Card */}
+                  {/* Dispatch Confirmation Card */}
                   <div className="bg-neutral-950 border border-white/10 p-6 text-left space-y-4 rounded-xl">
                     <div className="flex justify-between items-center border-b border-white/10 pb-3">
-                      <span className="text-[10px] font-mono uppercase tracking-widest text-paper/50 font-bold">DISPATCH INVITATION</span>
-                      <span className="px-2.5 py-0.5 border border-white/20 text-paper text-[9px] font-mono uppercase tracking-wider">VIDEO CONFERENCE</span>
+                      <span className="text-[10px] font-mono uppercase tracking-widest text-paper/50 font-bold">DISPATCH CONFIRMATION</span>
+                      <span className="px-2.5 py-0.5 border border-white/20 text-paper text-[9px] font-mono uppercase tracking-wider">ACTIVE AGENT QUEUE</span>
                     </div>
 
                     <div className="space-y-2.5 font-sans">
                       <div className="flex items-center gap-3 text-paper">
-                        <CalendarIcon className="w-4 h-4 text-paper" />
-                        <span className="text-xs font-mono font-bold">{formatDateLabel(selectedDateStr).toUpperCase()}</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-paper">
-                        <Clock className="w-4 h-4 text-paper" />
-                        <span className="text-xs font-mono">{selectedTimeSlot} (Eastern Standard Time)</span>
+                        <User className="w-4 h-4 text-paper" />
+                        <span className="text-xs font-mono font-bold">{name.toUpperCase()}</span>
                       </div>
                       <div className="flex items-center gap-3 text-paper">
                         <Mail className="w-4 h-4 text-paper" />
@@ -729,7 +494,7 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
                     </div>
 
                     <div className="pt-3.5 text-paper/60 text-xs leading-relaxed border-t border-white/10 font-serif italic">
-                      <strong>Next Steps:</strong> A calendar invitation with video bridge instructions will arrive at <strong>{email}</strong> momentarily. Please prepare access parameters or URLs for your current business website.
+                      <strong>Next Steps:</strong> A confirmation email has been dispatched. Our team will contact you momentarily to align on parameters and schedule your live deployment workspace.
                     </div>
                   </div>
 
@@ -760,8 +525,6 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
                         setOtherIndustry('');
                         setCrm('');
                         setLeadScoring('');
-                        setSelectedDateStr('');
-                        setSelectedTimeSlot('');
                         setNotes('');
                         onReset?.();
                       }}
@@ -787,14 +550,25 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
                   <ChevronLeft className="w-4 h-4" /> Back
                 </button>
 
-                <button
-                  type="button"
-                  id={`btn-next-step${step}`}
-                  onClick={handleNextStep}
-                  className="inline-flex items-center gap-3 py-3.5 px-6 bg-white hover:bg-neutral-100 text-ink font-mono text-xs uppercase tracking-wider transition-all font-bold border border-white rounded-xl shadow-md cursor-pointer"
-                >
-                  Continue <ChevronRight className="w-4 h-4" />
-                </button>
+                {step === 3 ? (
+                  <button
+                    type="button"
+                    id="btn-submit-booking"
+                    onClick={() => handleFinalSubmit()}
+                    className="inline-flex items-center gap-3 py-3.5 px-8 bg-white hover:bg-neutral-100 text-ink font-mono text-xs uppercase tracking-wider transition-all border border-white font-bold rounded-xl shadow-md cursor-pointer"
+                  >
+                    SECURE RESERVATION
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    id={`btn-next-step${step}`}
+                    onClick={handleNextStep}
+                    className="inline-flex items-center gap-3 py-3.5 px-6 bg-white hover:bg-neutral-100 text-ink font-mono text-xs uppercase tracking-wider transition-all font-bold border border-white rounded-xl shadow-md cursor-pointer"
+                  >
+                    Continue <ChevronRight className="w-4 h-4" />
+                  </button>
+                )}
               </div>
             )}
           </div>
