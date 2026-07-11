@@ -105,19 +105,6 @@ export default function Disqualifier({ onScrollToQuestionnaire }: DisqualifierPr
             </p>
           </div>
 
-          <div className="flex gap-2.5 items-start">
-            <span className="w-1.5 h-1.5 bg-ink mt-1.5 flex-shrink-0 rounded-full" />
-            <p>
-              <strong>Staff Limitations:</strong> We are built for businesses that already generate inbound enquiries but don't have enough staff to immediately contact every lead.
-            </p>
-          </div>
-
-          <div className="flex gap-2.5 items-start">
-            <span className="w-1.5 h-1.5 bg-ink mt-1.5 flex-shrink-0 rounded-full" />
-            <p>
-              <strong>Competitive Advantage:</strong> Our goal is to ensure inbound leads receive an immediate response before they lose interest or contact a competitor.
-            </p>
-          </div>
         </div>
       </div>
 

@@ -99,10 +99,10 @@ export default function App() {
           </div>
           <div className="space-y-4 font-serif text-sm leading-relaxed text-ink-muted italic">
             <p>
-              NexaBuilds is an autonomous engineering agency. We build and deploy digital lead agents that handle inbound traffic, qualify customer intent, and lock calendar bookings in under 90 seconds.
+              We are built for businesses that already generate inbound enquiries but don't have enough staff to immediately contact every lead. Our goal is to ensure inbound leads receive an immediate response before they lose interest or contact a competitor.
             </p>
             <p>
-              By replacing traditional call-backs and email delay loops with immediate conversational action, we halt client leakage for mechanical trades, law practices, and high-ticket service operations.
+              By replacing traditional call-backs and email delay loops with immediate conversational action, we halt client leakage for high-ticket service operations.
             </p>
           </div>
         </section>
