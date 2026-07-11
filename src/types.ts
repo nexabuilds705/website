@@ -9,5 +9,7 @@ export interface LeadSubmission {
   staffingProblem: boolean;
   inboundVolume: 'low' | 'medium' | 'high' | 'critical';
   notes?: string;
+  crm?: string;
+  leadScoring?: string;
   bookedAt: string; // ISO timestamp
 }

@@ -37,11 +37,11 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [subHomeService, setSubHomeService] = useState<string>('');
-  const [otherIndustry, setOtherIndustry] = useState<string>('');
-  const [staffingProblem, setStaffingProblem] = useState<boolean | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [subHomeService, setSubHomeService] = useState('');
+  const [otherIndustry, setOtherIndustry] = useState('');
+  const [crm, setCrm] = useState('');
+  const [leadScoring, setLeadScoring] = useState('');
   const [inboundVolume, setInboundVolume] = useState<'low' | 'medium' | 'high' | 'critical'>('medium');
   const [notes, setNotes] = useState('');
 
@@ -85,13 +85,7 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
 
   const calendarDays = getCalendarDays(activeMonth);
 
-  const handleServiceToggle = (id: string) => {
-    if (selectedServices.includes(id)) {
-      setSelectedServices(selectedServices.filter(s => s !== id));
-    } else {
-      setSelectedServices([...selectedServices, id]);
-    }
-  };
+
 
   const handleNextStep = () => {
     setFormError('');
@@ -124,10 +118,6 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
       }
       setStep(3);
     } else if (step === 3) {
-      if (staffingProblem === null) {
-        setFormError('Please select if you face staffing challenges for leads.');
-        return;
-      }
       setStep(4);
     }
   };
@@ -167,9 +157,11 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
       services: finalServices,
       preferredDate: selectedDateStr,
       preferredTime: selectedTimeSlot,
-      staffingProblem: !!staffingProblem,
+      staffingProblem: false,
       inboundVolume,
       notes,
+      crm: crm.trim() || undefined,
+      leadScoring: leadScoring.trim() || undefined,
       bookedAt: new Date().toISOString()
     };
 
@@ -477,78 +469,43 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
                 >
                   <div className="border-b border-white/10 pb-4">
                     <h3 className="font-serif text-2xl font-bold text-paper flex items-center gap-3">
-                      <PhoneCall className="w-5 h-5 text-paper" />
-                      3. Operational Bottlenecks
+                      <Sparkles className="w-5 h-5 text-paper" />
+                      3. Special Instructions & Integrations
                     </h3>
-                    <p className="text-paper/60 text-sm font-serif italic mt-1">
-                      Are you currently facing the problem of not having enough dedicated staff to handle all of your inbound leads?
+                    <p className="text-paper/60 text-sm font-serif italic mt-1 leading-relaxed">
+                      Providing details regarding your current lead scoring workflow or CRM platforms will allow our engineering team to pre-configure integration hooks prior to our call, ensuring a highly productive demonstration.
                     </p>
                   </div>
 
-                  <div className="space-y-4">
-                    <button
-                      type="button"
-                      id="staff-problem-yes"
-                      onClick={() => setStaffingProblem(true)}
-                      className={`w-full p-6 border text-left flex items-start gap-4 transition-all rounded-2xl ${
-                        staffingProblem === true
-                          ? 'bg-white border-white text-ink shadow-lg'
-                          : 'bg-neutral-900 border-white/10 hover:border-white/30 text-paper'
-                      }`}
-                    >
-                      <div className={`p-2 border text-lg rounded-lg ${
-                        staffingProblem === true ? 'bg-neutral-100 border-ink/10' : 'bg-neutral-800 border-white/10'
-                      }`}>
-                        ⚠️
-                      </div>
-                      <div>
-                        <span className={`font-serif text-lg font-bold block ${
-                          staffingProblem === true ? 'text-ink' : 'text-paper'
-                        }`}>Yes, we suffer from inbound capacity constraints</span>
-                        <p className={`text-xs mt-2 leading-relaxed font-serif ${
-                          staffingProblem === true ? 'text-ink/80' : 'text-paper/60'
-                        }`}>
-                          We miss calls, fail to respond within golden minutes, or lack dedicated staff to work evenings & weekends. Leads eventually drop off and buy elsewhere.
-                        </p>
-                      </div>
-                    </button>
-
-                    <button
-                      type="button"
-                      id="staff-problem-no"
-                      onClick={() => setStaffingProblem(false)}
-                      className={`w-full p-6 border text-left flex items-start gap-4 transition-all rounded-2xl ${
-                        staffingProblem === false
-                          ? 'bg-white border-white text-ink shadow-lg'
-                          : 'bg-neutral-900 border-white/10 hover:border-white/30 text-paper'
-                      }`}
-                    >
-                      <div className={`p-2 border text-lg rounded-lg ${
-                        staffingProblem === false ? 'bg-neutral-100 border-ink/10' : 'bg-neutral-800 border-white/10'
-                      }`}>
-                        ✓
-                      </div>
-                      <div>
-                        <span className={`font-serif text-lg font-bold block ${
-                          staffingProblem === false ? 'text-ink' : 'text-paper'
-                        }`}>No, we have robust instant answering systems</span>
-                        <p className={`text-xs mt-2 leading-relaxed font-serif ${
-                          staffingProblem === false ? 'text-ink/80' : 'text-paper/60'
-                        }`}>
-                          We employ dedicated inside sales agents who respond via call and text in under 2 minutes, 24/7/365, without exception.
-                        </p>
-                      </div>
-                    </button>
-                  </div>
-
-                  {staffingProblem === true && (
-                    <div className="p-5 border border-white/10 bg-neutral-950 text-paper text-xs leading-relaxed flex gap-3 rounded-xl font-serif">
-                      <Sparkles className="w-4 h-4 text-paper flex-shrink-0 mt-0.5 animate-pulse" />
-                      <span>
-                        <strong>Staffing Solution Eligibility:</strong> Since you have an inbound bottleneck, you qualify for our <strong>Comprehensive Launch Suite</strong>. This packages our custom Lead Agent with a highly-tuned Business Website to convert traffic, available under our introductory setup + retainer tier detailed below.
-                      </span>
+                  <div className="space-y-6">
+                    <div>
+                      <label className="block text-xs font-mono uppercase tracking-wider text-paper font-bold mb-2.5" htmlFor="input-crm">
+                        CRM / Lead Management Software (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        id="input-crm"
+                        placeholder="e.g. ServiceTitan, HubSpot, Salesforce, custom CRM..."
+                        value={crm}
+                        onChange={(e) => setCrm(e.target.value)}
+                        className="w-full px-4 py-3.5 bg-neutral-900 border border-white/20 text-paper placeholder:text-neutral-500 focus:outline-none focus:ring-1 focus:ring-white focus:bg-neutral-800 text-sm font-sans rounded-xl transition-colors"
+                      />
                     </div>
-                  )}
+
+                    <div>
+                      <label className="block text-xs font-mono uppercase tracking-wider text-paper font-bold mb-2.5" htmlFor="input-scoring">
+                        Lead Scoring Process & Workflow Requirements (Optional)
+                      </label>
+                      <textarea
+                        id="input-scoring"
+                        rows={4}
+                        placeholder="e.g. Tell us how you score, route, or filter inbound leads so we can prepare specialized handling playbooks..."
+                        value={leadScoring}
+                        onChange={(e) => setLeadScoring(e.target.value)}
+                        className="w-full px-4 py-3.5 bg-neutral-900 border border-white/20 text-paper placeholder:text-neutral-500 focus:outline-none focus:ring-1 focus:ring-white focus:bg-neutral-800 text-sm font-sans rounded-xl transition-colors"
+                      />
+                    </div>
+                  </div>
                 </motion.div>
               )}
 
@@ -776,15 +733,15 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
                     </div>
                   </div>
 
-                  {staffingProblem === true ? (
+                  {crm ? (
                     <div className="p-5 border border-white/10 bg-neutral-900/40 text-left text-paper text-xs font-serif leading-relaxed rounded-xl">
-                      <span className="font-mono font-bold uppercase tracking-wider block mb-1 text-[10px] text-paper">[ COMPREHENSIVE SUITE ACTIVE ]</span>
-                      Since you selected active staffing bottlenecks, we have queued our bundled <strong>Lead Agent + Responsive Companion Website</strong> package at the discounted setup fee shown in our pricing directory below.
+                      <span className="font-mono font-bold uppercase tracking-wider block mb-1 text-[10px] text-paper">[ CRM INTEGRATION QUEUED ]</span>
+                      Our integration suite has been configured for <strong>{crm}</strong>. We will demonstrate live contact syncing and dispatch webhooks during our review session.
                     </div>
                   ) : (
                     <div className="p-5 border border-white/10 bg-neutral-900/40 text-left text-paper text-xs font-serif leading-relaxed rounded-xl">
-                      <span className="font-mono font-bold uppercase tracking-wider block mb-1 text-[10px] text-paper">[ COPILOT ROUTING ACTIVE ]</span>
-                      Since you employ answering staff, we have configured an overflow playbook where the agent captures after-hours prospects and schedules calendar dispatches directly.
+                      <span className="font-mono font-bold uppercase tracking-wider block mb-1 text-[10px] text-paper">[ STANDARD LOGGING ACTIVE ]</span>
+                      We have configured standard secure email and telemetry dispatcher logs. Integrations can be added at any time during our onboarding walkthrough.
                     </div>
                   )}
 
@@ -798,11 +755,11 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
                         setName('');
                         setEmail('');
                         setPhone('');
-                        setSelectedServices([]);
                         setSelectedCategory('');
                         setSubHomeService('');
                         setOtherIndustry('');
-                        setStaffingProblem(null);
+                        setCrm('');
+                        setLeadScoring('');
                         setSelectedDateStr('');
                         setSelectedTimeSlot('');
                         setNotes('');

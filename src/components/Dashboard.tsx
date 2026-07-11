@@ -25,11 +25,13 @@ export default function Dashboard({ submissionsUpdatedToggle }: DashboardProps) 
             name: 'Marcus Vance',
             email: 'marcus@vanceplumbing.com',
             phone: '2025550143',
-            services: ['hvac'],
+            services: ['Pool Installation & Design'],
             preferredDate: '2026-07-15',
             preferredTime: '10:00 AM',
             staffingProblem: true,
             inboundVolume: 'high',
+            crm: 'ServiceTitan',
+            leadScoring: 'Qualify based on pool dimension requirements and ready budget >= $15,000.',
             notes: 'We are currently running Google Local Services ads but miss half the calls during our busy plumbing hours.',
             bookedAt: new Date(Date.now() - 3600000 * 4).toISOString()
           },
@@ -38,11 +40,13 @@ export default function Dashboard({ submissionsUpdatedToggle }: DashboardProps) 
             name: 'Sarah Jenkins',
             email: 's.jenkins@jenkinslawyers.net',
             phone: '3125550189',
-            services: ['legal'],
+            services: ['Real Estate & Brokerage'],
             preferredDate: '2026-07-17',
             preferredTime: '02:30 PM',
             staffingProblem: false,
             inboundVolume: 'medium',
+            crm: 'HubSpot',
+            leadScoring: 'Verify property type and buyer pre-approval state before dispatching call slot.',
             notes: 'Need standard lead agent qualifying flow to screen cases before booking consultations.',
             bookedAt: new Date(Date.now() - 3600000 * 20).toISOString()
           }
@@ -87,6 +91,14 @@ export default function Dashboard({ submissionsUpdatedToggle }: DashboardProps) 
       'Looking to bundle a new high-end React marketing site + custom GPT chatbot.'
     ];
 
+    const crmOptions = ['HubSpot', 'Salesforce', 'ServiceTitan', 'ActiveCampaign'];
+    const scoringRules = [
+      'Assign lead score of 10 if company size > 50, route to priority queue.',
+      'Require email verification and budget check before booking confirmation.',
+      'Screen out leads without professional company emails.',
+      'Prioritize local phone area code inbounds for instant call dispatching.'
+    ];
+
     const idx = Math.floor(Math.random() * names.length);
     const mockLead: LeadSubmission = {
       id: `lead_sim_${Date.now()}`,
@@ -98,6 +110,8 @@ export default function Dashboard({ submissionsUpdatedToggle }: DashboardProps) 
       preferredTime: '11:00 AM',
       staffingProblem: Math.random() > 0.4,
       inboundVolume: 'medium',
+      crm: crmOptions[Math.floor(Math.random() * crmOptions.length)],
+      leadScoring: scoringRules[idx],
       notes: notesList[idx],
       bookedAt: new Date().toISOString()
     };
@@ -193,9 +207,9 @@ export default function Dashboard({ submissionsUpdatedToggle }: DashboardProps) 
           <span className="text-3xl font-serif font-bold mt-1.5 block text-ink">{submissions.length}</span>
         </div>
         <div className="bg-[#fbfaf8] border border-ink/30 p-5 rounded-none">
-          <span className="text-[9px] text-ink-muted font-mono font-bold block uppercase tracking-widest">[ Staff Pain Cases ]</span>
+          <span className="text-[9px] text-ink-muted font-mono font-bold block uppercase tracking-widest">[ CRM Integrations ]</span>
           <span className="text-3xl font-serif font-bold mt-1.5 block text-ink">
-            {submissions.filter(s => s.staffingProblem).length}
+            {submissions.filter(s => s.crm).length}
           </span>
         </div>
         <div className="bg-[#fbfaf8] border border-ink/30 p-5 rounded-none">
@@ -247,9 +261,9 @@ export default function Dashboard({ submissionsUpdatedToggle }: DashboardProps) 
                     {lead.name}
                   </span>
                   
-                  {lead.staffingProblem && (
-                    <span className="px-2 py-0.5 bg-red-50 border border-red-200 text-red-950 text-[8px] font-mono font-bold uppercase tracking-widest">
-                      🚨 STAFF SHORTAGE
+                  {lead.crm && (
+                    <span className="px-2 py-0.5 bg-blue-50 border border-blue-200 text-blue-950 text-[8px] font-mono font-bold uppercase tracking-widest">
+                      🔌 CRM: {lead.crm}
                     </span>
                   )}
 
@@ -281,6 +295,12 @@ export default function Dashboard({ submissionsUpdatedToggle }: DashboardProps) 
                         {s}
                       </span>
                     ))}
+                  </div>
+                )}
+
+                {lead.leadScoring && (
+                  <div className="p-3 bg-[#fbfaf8] border border-ink/20 text-ink-muted text-xs font-serif leading-relaxed italic">
+                    <strong>Lead Scoring Details:</strong> &ldquo;{lead.leadScoring}&rdquo;
                   </div>
                 )}
 

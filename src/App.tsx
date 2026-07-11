@@ -80,7 +80,7 @@ export default function App() {
         {/* Sticky header */}
         <header className="sticky top-0 z-30 bg-[#F4F1EA]/95 backdrop-blur-sm border-b border-ink/15 py-3.5 px-5 flex items-center justify-center w-full">
           <div className="text-center flex flex-col items-center justify-center">
-            <span className="font-serif font-bold text-sm tracking-widest text-ink block leading-none">NexaBuilds</span>
+            <span className="font-serif font-bold text-[1.14rem] tracking-widest text-ink block leading-none">NexaBuilds</span>
             <span className="text-[7.5px] font-mono tracking-wider text-ink-muted/85 uppercase block mt-1">Autonomous Systems</span>
           </div>
         </header>
