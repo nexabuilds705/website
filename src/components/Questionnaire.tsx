@@ -23,6 +23,16 @@ const DUBAI_HOME_SERVICES = [
   { id: 'home_pest', label: 'Pest Control Services', icon: '🐜' },
 ];
 
+function formatPhoneToE164(phoneStr: string, defaultCountryCode: string = '+971'): string {
+  if (phoneStr.trim().startsWith('+')) {
+    return '+' + phoneStr.replace(/\D/g, '');
+  }
+  let digits = phoneStr.replace(/\D/g, '');
+  if (defaultCountryCode === '+971' && digits.startsWith('0')) {
+    digits = digits.substring(1);
+  }
+  return defaultCountryCode + digits;
+}
 
 export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTarget }: QuestionnaireProps) {
   // Wizard steps: 1 (Info), 2 (Services/Volume), 3 (Special Instructions), 4 (Success)
@@ -104,10 +114,12 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
     setIsSubmitting(true);
 
     try {
+      const formattedPhone = formatPhoneToE164(phone);
+
       const payload = {
         name,
         email,
-        phone,
+        phone: formattedPhone,
         serviceNeeded: finalServices.join(", "),
         problem: leadScoring.trim() || notes || "No specific requirements provided."
       };
@@ -128,7 +140,7 @@ export default function Questionnaire({ onBookingSuccess, onReset, isAnimationTa
         id: `lead_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
         name,
         email,
-        phone,
+        phone: formattedPhone,
         services: finalServices,
         preferredDate: "",
         preferredTime: "",
