@@ -169,7 +169,7 @@ export default function Questionnaire({ onBookingSuccess, onReset }: Questionnai
   };
 
   return (
-    <section id="book-demo" className="py-12 bg-[#F4F1EA] relative border-b border-[#1A1A1A]">
+    <section id="book-demo" className="py-12 bg-white relative border-b border-[#1A1A1A]">
       <div className="max-w-4xl mx-auto px-4 relative z-10">
         
         {/* Header */}

@@ -214,7 +214,13 @@ export default function App() {
           <div className="flex flex-col">
 
             {/* Section 1: Corporate profile */}
-            <section className="bg-white px-6 py-12 border-b border-ink/10 space-y-8 flex-shrink-0">
+            <motion.section
+              initial={{ opacity: 0, y: 60 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ root: scrollContainerRef, once: true, amount: 0.1 }}
+              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+              className="bg-white px-6 py-12 border-b border-ink/10 space-y-8 flex-shrink-0"
+            >
               <div className="space-y-2">
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 border border-ink/40 text-ink/75 text-[10px] font-mono uppercase tracking-widest rounded-full">
                   <Sparkles className="w-3 h-3 text-ink" />
@@ -230,10 +236,16 @@ export default function App() {
                   NexaBuilds is an autonomous engineering agency. We build and deploy digital lead agents that handle inbound traffic, qualify customer intent, and lock calendar bookings in under 90 seconds.
                 </p>
               </div>
-            </section>
+            </motion.section>
 
             {/* Section 2: Product mechanics */}
-            <section className="bg-white px-6 py-12 border-b border-ink/10 space-y-8 flex-shrink-0">
+            <motion.section
+              initial={{ opacity: 0, y: 60 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ root: scrollContainerRef, once: true, amount: 0.1 }}
+              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+              className="bg-white px-6 py-12 border-b border-ink/10 space-y-8 flex-shrink-0"
+            >
               <div className="space-y-2">
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 border border-ink/40 text-ink/75 text-[10px] font-mono uppercase tracking-widest rounded-full">
                   <Bot className="w-3.5 h-3.5 text-ink" />
@@ -261,19 +273,39 @@ export default function App() {
                   </div>
                 ))}
               </div>
-            </section>
+            </motion.section>
 
             {/* Section 3: Disqualifier */}
-            <Disqualifier onScrollToQuestionnaire={scrollToBooking} />
+            <motion.div
+              initial={{ opacity: 0, y: 60 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ root: scrollContainerRef, once: true, amount: 0.05 }}
+              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <Disqualifier onScrollToQuestionnaire={scrollToBooking} />
+            </motion.div>
 
             {/* Section 4: Booking questionnaire */}
-            <Questionnaire
-              onBookingSuccess={handleBookingSuccess}
-              onReset={() => setIsBooked(false)}
-            />
+            <motion.div
+              initial={{ opacity: 0, y: 60 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ root: scrollContainerRef, once: true, amount: 0.05 }}
+              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <Questionnaire
+                onBookingSuccess={handleBookingSuccess}
+                onReset={() => setIsBooked(false)}
+              />
+            </motion.div>
 
             {/* Footer */}
-            <footer className="bg-[#E8E5DC] border-t border-ink/20 py-10 px-6 text-center space-y-6 flex-shrink-0">
+            <motion.footer
+              initial={{ opacity: 0, y: 60 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ root: scrollContainerRef, once: true, amount: 0.1 }}
+              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+              className="bg-[#E8E5DC] border-t border-ink/20 py-10 px-6 text-center space-y-6 flex-shrink-0"
+            >
               <div className="flex items-center justify-center gap-2">
                 <div className="w-5 h-5 border border-ink bg-white flex items-center justify-center text-ink rounded-md">
                   <Bot className="w-3 h-3" />
@@ -289,7 +321,7 @@ export default function App() {
                   <span>SLA GUARANTEED</span>
                 </div>
               </div>
-            </footer>
+            </motion.footer>
 
           </div>
         )}
